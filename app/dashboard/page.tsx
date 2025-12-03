@@ -1,5 +1,5 @@
 import { AppSidebar } from '@/components/app-sidebar'
-import Ai01 from '@/components/tt'
+import { AiPrompt } from '@/components/AiPrompt'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -46,7 +46,7 @@ export default function Page() {
           className="flex items-center"
           style={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
         >
-          <Ai01 />
+          <AiPrompt />
         </div>
       </SidebarInset>
     </SidebarProvider>

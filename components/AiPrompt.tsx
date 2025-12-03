@@ -23,7 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 
-export default function Ai01() {
+export function AiPrompt() {
   const [message, setMessage] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
