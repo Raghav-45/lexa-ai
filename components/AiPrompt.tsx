@@ -23,7 +23,11 @@ import {
 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 
-export function AiPrompt() {
+interface AiPromptProps {
+  onSend?: (message: string) => void;
+}
+
+export function AiPrompt({ onSend }: AiPromptProps) {
   const [message, setMessage] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -38,6 +42,10 @@ export function AiPrompt() {
 
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
+      }
+
+      if (onSend) {
+        onSend(message.trim());
       }
     }
   };
@@ -62,7 +70,7 @@ export function AiPrompt() {
 
   return (
     <div className="w-full">
-      <h1 className="mb-7 mx-auto max-w-2xl text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap">
+      <h1 className="mb-7 mx-auto text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap">
         How can I help you today?
       </h1>
 
@@ -77,7 +85,7 @@ export function AiPrompt() {
 
         <div
           className={cn(
-            "w-full max-w-2xl mx-auto bg-transparent dark:bg-muted/50 cursor-text overflow-clip bg-clip-padding p-2.5 shadow-lg border border-border transition-all duration-200",
+            "w-full mx-auto bg-transparent dark:bg-muted/50 cursor-text overflow-clip bg-clip-padding p-2.5 shadow-lg border border-border transition-all duration-200",
             {
               "rounded-3xl grid grid-cols-1 grid-rows-[auto_1fr_auto]":
                 isExpanded,

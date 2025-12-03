@@ -1,5 +1,8 @@
+'use client'
+
 import { AppSidebar } from '@/components/app-sidebar'
 import { AiPrompt } from '@/components/AiPrompt'
+import { ChatMessage } from '@/components/chat-message'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,8 +17,47 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+}
 
 export default function Page() {
+  const [messages, setMessages] = useState<Message[]>([])
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const hasMessages = messages.length > 0
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages])
+
+  const handleSendMessage = (content: string) => {
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content,
+    }
+    setMessages((prev) => [...prev, userMessage])
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content:
+          'This is a simulated AI response. Connect your actual AI service here.',
+      }
+      setMessages((prev) => [...prev, aiMessage])
+    }, 1000)
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -30,9 +72,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Conversations
-                  </BreadcrumbLink>
+                  <BreadcrumbLink href="#">Conversations</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
@@ -43,10 +83,48 @@ export default function Page() {
           </div>
         </header>
         <div
-          className="flex items-center"
+          className="flex flex-col transition-all max-w-2xl mx-auto w-full"
           style={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
         >
-          <AiPrompt />
+          <motion.div
+            className="flex flex-col flex-1 overflow-hidden"
+            animate={{
+              flexGrow: hasMessages ? 1 : 1,
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <AnimatePresence mode="wait">
+              {hasMessages && (
+                <ScrollArea key="messages" className="h-full">
+                  <div ref={scrollRef} className="flex flex-col">
+                    {messages.map((message, index) => (
+                      <ChatMessage
+                        key={message.id}
+                        role={message.role}
+                        content={message.content}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              )}
+            </AnimatePresence>
+          </motion.div>
+          <motion.div
+            animate={{
+              y: hasMessages ? 0 : 0,
+            }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <AiPrompt onSend={handleSendMessage} />
+          </motion.div>
+          <motion.div
+            className="flex"
+            style={{ willChange: 'flex-grow' }}
+            initial={{ flexGrow: 1 }}
+            animate={{ flexGrow: hasMessages ? 0 : 1 }}
+            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>
