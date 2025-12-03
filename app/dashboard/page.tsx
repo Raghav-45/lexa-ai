@@ -82,9 +82,15 @@ export default function Page() {
             </Breadcrumb>
           </div>
         </header>
-        <div
+        <motion.div
           className="flex flex-col transition-all max-w-2xl mx-auto w-full"
-          style={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
+          initial={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
+          animate={{
+            height: hasMessages
+              ? 'calc(100vh - calc(var(--spacing) * 16 * 1 + 50px))'
+              : 'calc(100vh - calc(var(--spacing) * 16 * 3))',
+          }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <motion.div
             className="flex flex-col flex-1 overflow-hidden"
@@ -125,7 +131,7 @@ export default function Page() {
             animate={{ flexGrow: hasMessages ? 0 : 1 }}
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           />
-        </div>
+        </motion.div>
       </SidebarInset>
     </SidebarProvider>
   )
