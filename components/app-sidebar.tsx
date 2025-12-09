@@ -10,6 +10,7 @@ import {
   GalleryVerticalEnd,
   Map,
   PieChart,
+  Server,
   Settings2,
   SquareTerminal,
 } from "lucide-react"
@@ -112,6 +113,11 @@ const data = {
           url: "#",
         },
       ],
+    },
+    {
+      title: "MCP Servers",
+      url: "/mcp-servers",
+      icon: Server,
     },
     {
       title: "Settings",

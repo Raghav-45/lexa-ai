@@ -1,6 +1,5 @@
 'use client'
 
-import { AppSidebar } from '@/components/app-sidebar'
 import { AiPrompt } from '@/components/AiPrompt'
 import { ChatMessage } from '@/components/chat-message'
 import {
@@ -11,22 +10,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Separator } from '@/components/ui/separator'
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import {
+  SidebarTrigger
+} from '@/components/ui/sidebar'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 
 interface Message {
   id: string
@@ -161,10 +158,8 @@ export default function Page() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+    <>
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
@@ -269,7 +264,6 @@ export default function Page() {
             transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           />
         </motion.div>
-      </SidebarInset>
-    </SidebarProvider>
+    </>
   )
 }
