@@ -28,6 +28,9 @@ const SUPPORTED_MODELS = [
   'gemini-3-pro-preview'
 ] as const
 
+// Prevents this route's response from being cached on Vercel
+export const dynamic = "force-dynamic";
+ 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 })
@@ -44,8 +47,8 @@ export async function POST(request: Request) {
     }
 
     // Use provided model or default to gemini-2.5-flash
-    const selectedModel = model && SUPPORTED_MODELS.includes(model) 
-      ? model 
+    const selectedModel = model && SUPPORTED_MODELS.includes(model)
+      ? model
       : 'gemini-2.5-flash'
 
     // Convert messages to Gemini chat history format
@@ -62,41 +65,60 @@ export async function POST(request: Request) {
       history: history,
     })
 
-    // Send the last message and get response
-    const response = await chat.sendMessage({ message: lastMessage })
+    const response = await chat.sendMessageStream({ message: lastMessage })
 
-    return NextResponse.json({
-      candidates: [{
-        content: {
-          parts: [{ text: response.text }],
-          role: 'model'
+    const encoder = new TextEncoder()
+    const customReadable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of response) {
+            console.log(chunk)
+            const text = chunk.text
+            if (text) {
+              // Send as SSE format
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`))
+            }
+          }
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+          controller.close()
+        } catch (error) {
+          console.error('Streaming error:', error)
+          controller.error(error)
         }
-      }],
-      modelUsed: selectedModel
+      },
+    })
+
+    return new Response(customReadable, {
+      headers: {
+        Connection: "keep-alive",
+        "Content-Encoding": "none",
+        "Cache-Control": "no-cache, no-transform",
+        "Content-Type": "text/event-stream; charset=utf-8",
+      },
     })
   } catch (error: any) {
     console.error('Chat API error:', error)
-    
-    // Handle rate limit errors specifically
-    if (error?.status === 429 || error?.error?.code === 429) {
-      const retryDelay = error?.error?.details?.find((d: any) => d['@type']?.includes('RetryInfo'))?.retryDelay
-      const quotaInfo = error?.error?.details?.find((d: any) => d['@type']?.includes('QuotaFailure'))
-      
-      return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded',
-          message: `Quota exceeded for ${selectedModel}. ${retryDelay ? `Please retry in ${retryDelay}.` : 'Please try a different model or wait before retrying.'}`,
-          modelUsed: selectedModel,
-          retryAfter: retryDelay,
-          suggestSwitchModel: true
-        },
-        { status: 429 }
-      )
-    }
-    
-    return NextResponse.json(
-      { error: 'Failed to process chat request', modelUsed: selectedModel },
-      { status: 500 }
-    )
+
+    // // Handle rate limit errors specifically
+    // if (error?.status === 429 || error?.error?.code === 429) {
+    //   const retryDelay = error?.error?.details?.find((d: any) => d['@type']?.includes('RetryInfo'))?.retryDelay
+    //   const quotaInfo = error?.error?.details?.find((d: any) => d['@type']?.includes('QuotaFailure'))
+
+    //   return NextResponse.json(
+    //     {
+    //       error: 'Rate limit exceeded',
+    //       message: `Quota exceeded for ${selectedModel}. ${retryDelay ? `Please retry in ${retryDelay}.` : 'Please try a different model or wait before retrying.'}`,
+    //       modelUsed: selectedModel,
+    //       retryAfter: retryDelay,
+    //       suggestSwitchModel: true
+    //     },
+    //     { status: 429 }
+    //   )
+    // }
+
+    // return NextResponse.json(
+    //   { error: 'Failed to process chat request', modelUsed: selectedModel },
+    //   { status: 500 }
+    // )
   }
 }

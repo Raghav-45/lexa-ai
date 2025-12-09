@@ -80,6 +80,15 @@ export default function Page() {
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
 
+    // Create placeholder AI message
+    const aiMessageId = (Date.now() + 1).toString()
+    const aiMessage: Message = {
+      id: aiMessageId,
+      role: 'assistant',
+      content: '',
+    }
+    setMessages((prev) => [...prev, aiMessage])
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -92,24 +101,62 @@ export default function Page() {
         }),
       })
 
-      const data = await response.json()
-      const aiContent =
-        data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from AI'
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: aiContent,
+      if (!response.ok) {
+        throw new Error('Failed to fetch AI response')
       }
-      setMessages((prev) => [...prev, aiMessage])
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        throw new Error('Response body is not readable')
+      }
+
+      let accumulatedContent = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            if (data === '[DONE]') {
+              break
+            }
+            try {
+              const parsed = JSON.parse(data)
+              if (parsed.text) {
+                accumulatedContent += parsed.text
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === aiMessageId
+                      ? { ...msg, content: accumulatedContent }
+                      : msg
+                  )
+                )
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Error fetching AI response:', error)
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'Sorry, there was an error processing your request.',
-      }
-      setMessages((prev) => [...prev, errorMessage])
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === aiMessageId
+            ? {
+                ...msg,
+                content: 'Sorry, there was an error processing your request.',
+              }
+            : msg
+        )
+      )
     }
   }
 
