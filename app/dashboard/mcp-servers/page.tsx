@@ -1,11 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { Search, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { McpServerCard } from '@/components/mcp-server-card'
+import { AddMcpSheet } from '@/components/add-mcp-sheet'
 
 export default function McpServersPage() {
+  const [isAddMcpOpen, setIsAddMcpOpen] = useState(false)
   const mcpServers = [
     {
       name: 'Alpaca',
@@ -32,7 +35,10 @@ export default function McpServersPage() {
               placeholder="Search"
             />
           </div>
-          <Button className="h-10 px-4 rounded-lg shadow-sm flex items-center gap-2 whitespace-nowrap shrink-0">
+          <Button 
+            className="h-10 px-4 rounded-lg shadow-sm flex items-center gap-2 whitespace-nowrap shrink-0"
+            onClick={() => setIsAddMcpOpen(true)}
+          >
             <Plus className="h-4 w-4" />
             Add MCP
           </Button>
@@ -50,6 +56,8 @@ export default function McpServersPage() {
           />
         ))}
       </div>
+
+      <AddMcpSheet open={isAddMcpOpen} onOpenChange={setIsAddMcpOpen} />
     </div>
   )
 }
