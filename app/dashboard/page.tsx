@@ -20,6 +20,13 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
 interface Message {
   id: string
@@ -29,8 +36,29 @@ interface Message {
 
 export default function Page() {
   const [messages, setMessages] = useState<Message[]>([])
+  const [availableModels, setAvailableModels] = useState<string[]>([])
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash')
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasMessages = messages.length > 0
+
+  useEffect(() => {
+    // Fetch available models on mount
+    const fetchModels = async () => {
+      try {
+        const response = await fetch('/api/list-models')
+        const data = await response.json()
+        if (data.models && data.models.length > 0) {
+          setAvailableModels(data.models)
+          // data.models.filter((model: string) => model.endsWith('-flash-lite'))[0]
+          setSelectedModel(data.models.filter((model: string) => model.endsWith('gemini-2.5-flash-lite'))[0] || data.models[0]) // Set first model as default
+          // setSelectedModel(data.models.filter((model: string) => model.endsWith('gemini-2.5-flash-lite'))[0]) // Set first model as default
+        }
+      } catch (error) {
+        console.error('Error fetching models:', error)
+      }
+    }
+    fetchModels()
+  }, [])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -54,7 +82,7 @@ export default function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ messages: updatedMessages, model: selectedModel }),
       })
       
       const data = await response.json()
@@ -99,6 +127,26 @@ export default function Page() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="ml-auto px-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  {selectedModel}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
+                {availableModels.map((model) => (
+                  <DropdownMenuItem
+                    key={model}
+                    onClick={() => setSelectedModel(model)}
+                    className={selectedModel === model ? 'bg-accent' : ''}
+                  >
+                    {model}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <motion.div
