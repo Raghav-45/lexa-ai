@@ -38,24 +38,43 @@ export default function Page() {
     }
   }, [messages])
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content,
     }
-    setMessages((prev) => [...prev, userMessage])
+    
+    const updatedMessages = [...messages, userMessage]
+    setMessages(updatedMessages)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: updatedMessages }),
+      })
+      
+      const data = await response.json()
+      const aiContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from AI'
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content:
-          'This is a simulated AI response. Connect your actual AI service here.',
+        content: aiContent,
       }
       setMessages((prev) => [...prev, aiMessage])
-    }, 1000)
+    } catch (error) {
+      console.error('Error fetching AI response:', error)
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Sorry, there was an error processing your request.',
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    }
   }
 
   return (
