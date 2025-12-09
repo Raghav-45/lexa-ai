@@ -3,7 +3,9 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     const url: string = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`
-    const responseAllModels = await fetch(url)
+    const responseAllModels = await fetch(url, {
+      next: { revalidate: 604800 } // Cache for 1 week (604800 seconds)
+    })
     const allModelsData = await responseAllModels.json()
 
     const textGenModels = allModelsData.models
@@ -17,8 +19,6 @@ export async function GET() {
         !name.includes('robotics') &&          // Remove robotics models
         !name.includes('computer-use')         // Remove computer-use agents
       )
-
-    console.log('Usable Text Generation Models:', textGenModels)
 
     return NextResponse.json({ models: textGenModels })
   } catch (error) {
