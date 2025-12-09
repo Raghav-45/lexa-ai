@@ -198,7 +198,7 @@ export default function Page() {
             {!hasMessages && (
               <motion.h1
                 initial={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
                 className="mb-7 mx-auto text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap"
               >
