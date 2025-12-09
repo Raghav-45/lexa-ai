@@ -6,8 +6,10 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
+  Moon,
+  Sun,
 } from "lucide-react"
+import { useTheme } from "next-themes"
 
 import {
   Avatar,
@@ -29,6 +31,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Switch } from "@/components/ui/switch"
 
 export function NavUser({
   user,
@@ -40,6 +43,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const { theme, setTheme } = useTheme()
 
   return (
     <SidebarMenu>
@@ -81,10 +85,16 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
+              <div className="flex items-center justify-between px-2 py-1.5">
+                <div className="flex items-center gap-2">
+                  {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                  <span className="text-sm">Dark Mode</span>
+                </div>
+                <Switch
+                  checked={theme === "dark"}
+                  onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                />
+              </div>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
