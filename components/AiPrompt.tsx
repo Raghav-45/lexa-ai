@@ -70,10 +70,6 @@ export function AiPrompt({ onSend }: AiPromptProps) {
 
   return (
     <div className="w-full">
-      <h1 className="mb-7 mx-auto text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap">
-        How can I help you today?
-      </h1>
-
       <form onSubmit={handleSubmit} className="group/composer w-full">
         <input
           ref={fileInputRef}

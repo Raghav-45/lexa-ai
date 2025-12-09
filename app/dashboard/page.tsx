@@ -50,7 +50,11 @@ export default function Page() {
         if (data.models && data.models.length > 0) {
           setAvailableModels(data.models)
           // data.models.filter((model: string) => model.endsWith('-flash-lite'))[0]
-          setSelectedModel(data.models.filter((model: string) => model.endsWith('gemini-2.5-flash-lite'))[0] || data.models[0]) // Set first model as default
+          setSelectedModel(
+            data.models.filter((model: string) =>
+              model.endsWith('gemini-2.5-flash-lite')
+            )[0] || data.models[0]
+          ) // Set first model as default
           // setSelectedModel(data.models.filter((model: string) => model.endsWith('gemini-2.5-flash-lite'))[0]) // Set first model as default
         }
       } catch (error) {
@@ -72,7 +76,7 @@ export default function Page() {
       role: 'user',
       content,
     }
-    
+
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
 
@@ -82,12 +86,16 @@ export default function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages: updatedMessages, model: selectedModel }),
+        body: JSON.stringify({
+          messages: updatedMessages,
+          model: selectedModel,
+        }),
       })
-      
+
       const data = await response.json()
-      const aiContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from AI'
-      
+      const aiContent =
+        data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from AI'
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -135,7 +143,10 @@ export default function Page() {
                   {selectedModel}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
+              <DropdownMenuContent
+                align="end"
+                className="max-h-96 overflow-y-auto"
+              >
                 {availableModels.map((model) => (
                   <DropdownMenuItem
                     key={model}
@@ -183,6 +194,18 @@ export default function Page() {
               )}
             </AnimatePresence>
           </motion.div>
+          <AnimatePresence>
+            {!hasMessages && (
+              <motion.h1
+                initial={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                className="mb-7 mx-auto text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap"
+              >
+                How can I help you today?
+              </motion.h1>
+            )}
+          </AnimatePresence>
           <motion.div
             animate={{
               y: hasMessages ? 0 : 0,
