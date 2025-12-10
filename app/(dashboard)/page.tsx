@@ -127,7 +127,7 @@ export default function Page() {
         // Show message when bubble reaches destination
         setTimeout(() => {
           setAnimatingMessageId(null)
-        }, 100)
+        }, 200)
         
         // Remove bubble after fade completes
         setTimeout(() => {
