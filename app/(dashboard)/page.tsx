@@ -240,7 +240,7 @@ export default function Page() {
   return (
     <>
       {/* Traveling Bubbles Overlay */}
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence>
         {travelingBubbles.map((bubble) => (
           <motion.div
             key={bubble.id}
@@ -260,7 +260,6 @@ export default function Page() {
               top: bubble.endY,
               width: bubble.endWidth || bubble.width,
               height: bubble.endHeight || bubble.height,
-              // opacity: [1, 1, 0],
               borderRadius: ANIMATION_CONFIG.borderRadius.end,
             }}
             transition={{
@@ -268,7 +267,7 @@ export default function Page() {
               ease: ANIMATION_CONFIG.easing,
               opacity: {
                 times: [0, ANIMATION_CONFIG.fadeStartPoint, 1],
-                // ease: 'easeOut',
+                ease: 'easeOut',
               },
             }}
             className="pointer-events-none z-50 bg-primary text-primary-foreground shadow-2xl flex items-center px-4"
