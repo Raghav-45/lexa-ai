@@ -45,15 +45,15 @@ interface TravelingBubble {
 // Animation configuration - adjust these values to change animation behavior
 const ANIMATION_CONFIG = {
   // Duration of the bubble travel animation in seconds
-  travelDuration: 0.8,
+  travelDuration: 0.4,
   // Easing function for smooth animation
   easing: [0.4, 0, 0.2, 1] as const,
   // When to start fading out (0-1, where 1 is end of animation)
   fadeStartPoint: 0.7,
   // Delay before showing the actual message (in ms)
-  messageRevealDelay: 5800,
+  messageRevealDelay: 400,
   // Total time before removing bubble from DOM (in ms)
-  bubbleCleanupDelay: 5900,
+  bubbleCleanupDelay: 400,
   // Border radius values
   borderRadius: {
     start: '28px',
