@@ -13,15 +13,16 @@ interface ChatMessageProps {
   role: 'user' | 'assistant'
   content: string
   index: number
+  isAnimating?: boolean
 }
 
-export function ChatMessage({ role, content, index }: ChatMessageProps) {
+export function ChatMessage({ role, content, index, isAnimating = false }: ChatMessageProps) {
   const isAssistant = role === 'assistant'
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={isAnimating ? false : { opacity: 0, y: 20, scale: 0.95 }}
+      animate={isAnimating ? false : { opacity: 1, y: 0, scale: 1 }}
       transition={{
         duration: 0.4,
         delay: index * 0.1,
@@ -33,8 +34,8 @@ export function ChatMessage({ role, content, index }: ChatMessageProps) {
       )}
     >
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={isAnimating ? false : { opacity: 0 }}
+        animate={isAnimating ? false : { opacity: 1 }}
         transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
         className={cn(
           'max-w-[75%] rounded-3xl px-4 py-2.5 shadow-sm',

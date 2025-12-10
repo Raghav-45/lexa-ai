@@ -124,11 +124,15 @@ export default function Page() {
         
         setTravelingBubbles((prev) => [...prev, bubble])
         
-        // Show message and remove bubble after animation
+        // Show message when bubble reaches destination
+        setTimeout(() => {
+          setAnimatingMessageId(null)
+        }, 100)
+        
+        // Remove bubble after fade completes
         setTimeout(() => {
           setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
-          setAnimatingMessageId(null)
-        }, 700)
+        }, 3600)
       }
     }
 
@@ -144,7 +148,7 @@ export default function Page() {
     }, 100)
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat_placeholder', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -237,18 +241,15 @@ export default function Page() {
               top: bubble.endY,
               width: bubble.endWidth || 280,
               height: bubble.endHeight || 56,
-              scale: [1, 1.05, 1],
+              opacity: [1, 1, 0],
               borderRadius: '24px',
             }}
-            exit={{
-              opacity: 0,
-              scale: 0.9,
-            }}
             transition={{
-              duration: 0.6,
-              ease: [0.34, 1.56, 0.64, 1],
-              scale: {
-                times: [0, 0.5, 1],
+              duration: 0.2,
+              ease: [0.4, 0, 0.2, 1],
+              opacity: {
+                times: [0, 0.95, 1],
+                ease: 'easeOut',
               }
             }}
             className="pointer-events-none z-50 bg-primary text-primary-foreground shadow-2xl flex items-center px-4"
@@ -327,12 +328,13 @@ export default function Page() {
                       <div
                         key={message.id}
                         ref={index === messages.length - 1 ? lastMessageRef : null}
-                        className={message.id === animatingMessageId ? 'opacity-0' : ''}
+                        className={message.id === animatingMessageId ? 'opacity-0 pointer-events-none' : ''}
                       >
                         <ChatMessage
                           role={message.role}
                           content={message.content}
                           index={index}
+                          isAnimating={message.id === animatingMessageId}
                         />
                       </div>
                     ))}
