@@ -171,7 +171,7 @@ export default function Page() {
     }, 100)
 
     try {
-      const response = await fetch('/api/chat/v0', {
+      const response = await fetch('/api/chat/without-langchain', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
