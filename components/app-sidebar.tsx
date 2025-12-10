@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import { NavChatHistory } from "@/components/nav-chat-history"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -30,27 +30,10 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Demo",
+    email: "demo@user.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Playground",
@@ -73,6 +56,11 @@ const data = {
       ],
     },
     {
+      title: "MCP Servers",
+      url: "/mcp-servers",
+      icon: Server,
+    },
+    {
       title: "Models",
       url: "#",
       icon: Bot,
@@ -90,34 +78,6 @@ const data = {
           url: "#",
         },
       ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "MCP Servers",
-      url: "/mcp-servers",
-      icon: Server,
     },
     {
       title: "Settings",
@@ -143,21 +103,26 @@ const data = {
       ],
     },
   ],
-  projects: [
+  chatHistory: [
     {
-      name: "Design Engineering",
+      name: "Write a review",
       url: "#",
-      icon: Frame,
     },
     {
-      name: "Sales & Marketing",
+      name: "Fixing Vite ESM error",
       url: "#",
-      icon: PieChart,
     },
     {
-      name: "Travel",
+      name: "Intersectionality politics economy PDF",
       url: "#",
-      icon: Map,
+    },
+    {
+      name: "Data Structures overview",
+      url: "#",
+    },
+    {
+      name: "Explain a topic",
+      url: "#",
     },
   ],
 }
@@ -166,11 +131,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavChatHistory chatHistory={data.chatHistory} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

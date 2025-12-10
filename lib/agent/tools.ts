@@ -29,18 +29,49 @@ export const calculatorTool = tool(
 )
 
 export const currentTimeTool = tool(
-  ({ timezone }) => {
+  ({ timezone, format }) => {
     const now = new Date()
-    if (timezone) {
-      return now.toLocaleString('en-US', { timeZone: timezone })
+    const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+    
+    if (format === 'date') {
+      // Format: "9 December 2025"
+      return now.toLocaleDateString('en-US', { 
+        timeZone: tz,
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    } else if (format === 'time') {
+      // Format: "11:16 PM"
+      return now.toLocaleTimeString('en-US', { 
+        timeZone: tz,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    } else {
+      // Default: both date and time
+      const date = now.toLocaleDateString('en-US', { 
+        timeZone: tz,
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+      const time = now.toLocaleTimeString('en-US', { 
+        timeZone: tz,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+      return `${time}, ${date}`
     }
-    return now.toISOString()
   },
   {
     name: 'get_current_time',
-    description: 'Gets the current date and time. Use this when the user asks about the current time or date.',
+    description: 'Gets the current date and/or time in a readable format. Use this when the user asks about the current time or date.',
     schema: z.object({
-      timezone: z.string().optional().describe('Timezone (optional, defaults to UTC)'),
+      timezone: z.string().optional().describe('Timezone (optional, defaults to user\'s local timezone)'),
+      format: z.enum(['time', 'date', 'both']).optional().describe('What to return: "time" for time only (11:16 PM), "date" for date only (9 December 2025), or "both" for both'),
     }),
   }
 )
