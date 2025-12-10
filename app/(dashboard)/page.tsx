@@ -169,7 +169,7 @@ export default function Page() {
     }, 100)
 
     try {
-      const response = await fetch('/api/chat_placs', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
