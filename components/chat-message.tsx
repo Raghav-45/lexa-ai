@@ -8,16 +8,28 @@ import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import rehypeHighlight from 'rehype-highlight'
 import 'highlight.js/styles/github-dark.css'
+import { ThumbsUp, ThumbsDown, Copy, Image as ImageIcon, RotateCcw, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useState } from 'react'
 
 interface ChatMessageProps {
   role: 'user' | 'assistant'
   content: string
   index: number
   isAnimating?: boolean
+  isLastMessage?: boolean
+  showActions?: boolean
 }
 
-export function ChatMessage({ role, content, index, isAnimating = false }: ChatMessageProps) {
+export function ChatMessage({ role, content, index, isAnimating = false, isLastMessage = false, showActions = false }: ChatMessageProps) {
   const isAssistant = role === 'assistant'
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <motion.div
@@ -29,8 +41,8 @@ export function ChatMessage({ role, content, index, isAnimating = false }: ChatM
         ease: [0.25, 0.1, 0.25, 1],
       }}
       className={cn(
-        'flex gap-3 px-4 py-3',
-        isAssistant ? 'justify-start' : 'justify-end'
+        'flex flex-col gap-2 px-4 py-3',
+        isAssistant ? 'items-start' : 'items-end'
       )}
     >
       <motion.div
@@ -38,10 +50,10 @@ export function ChatMessage({ role, content, index, isAnimating = false }: ChatM
         animate={isAnimating ? false : { opacity: 1 }}
         transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
         className={cn(
-          'max-w-[75%] rounded-3xl px-4 py-2.5 shadow-sm',
+          'max-w-[75%] shadow-sm',
           isAssistant
-            ? 'bg-muted text-foreground'
-            : 'bg-primary text-primary-foreground'
+            ? 'text-white pt-2.5 px-1'
+            : 'bg-primary text-primary-foreground rounded-3xl px-4 py-2.5'
         )}
       >
         <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
@@ -128,6 +140,64 @@ export function ChatMessage({ role, content, index, isAnimating = false }: ChatM
           </ReactMarkdown>
         </div>
       </motion.div>
+      
+      {isAssistant && showActions && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.5,
+            ease: [0.25, 0.1, 0.25, 1],
+          }}
+          className="flex items-center gap-1"
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => {}}
+          >
+            <ThumbsUp className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => {}}
+          >
+            <ThumbsDown className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={handleCopy}
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => {}}
+          >
+            <ImageIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            onClick={() => {}}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <div className="h-4 w-px bg-border mx-1" />
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Sparkles className="h-3 w-3" />
+            <span>Personalized with Memory</span>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   )
 }

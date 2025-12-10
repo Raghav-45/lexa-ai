@@ -71,6 +71,7 @@ export default function Page() {
   const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(
     null
   )
+  const [isAiStreaming, setIsAiStreaming] = useState<boolean>(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const promptRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -166,10 +167,11 @@ export default function Page() {
 
     setTimeout(() => {
       setMessages((prev) => [...prev, aiMessage])
+      setIsAiStreaming(true)
     }, 100)
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat/v0', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +197,10 @@ export default function Page() {
 
       while (true) {
         const { done, value } = await reader.read()
-        if (done) break
+        if (done) {
+          setIsAiStreaming(false)
+          break
+        }
 
         const chunk = decoder.decode(value, { stream: true })
         const lines = chunk.split('\n')
@@ -226,6 +231,7 @@ export default function Page() {
       }
     } catch (error) {
       console.error('Error fetching AI response:', error)
+      setIsAiStreaming(false)
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === aiMessageId
@@ -361,6 +367,8 @@ export default function Page() {
                         content={message.content}
                         index={index}
                         isAnimating={message.id === animatingMessageId}
+                        isLastMessage={index === messages.length - 1}
+                        showActions={index === messages.length - 1 && !isAiStreaming}
                       />
                     </div>
                   ))}

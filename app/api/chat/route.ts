@@ -16,6 +16,43 @@ export async function POST(request: Request) {
       )
     }
 
+    // Check if simulated responses are enabled
+    const simulateResponses = process.env.SIMULATE_RESPONSES === 'true'
+    
+    if (simulateResponses) {
+      const fakeResponse = "Hey Aditya! What's up?"
+      
+      if (streaming) {
+        const encoder = new TextEncoder()
+        const stream = new ReadableStream({
+          async start(controller) {
+            // Simulate streaming by sending character by character
+            for (let i = 0; i < fakeResponse.length; i++) {
+              const data = `data: ${JSON.stringify({ text: fakeResponse[i] })}\n\n`
+              controller.enqueue(encoder.encode(data))
+              await new Promise(resolve => setTimeout(resolve, 30))
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+            controller.close()
+          },
+        })
+
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+          },
+        })
+      }
+
+      return NextResponse.json({
+        content: fakeResponse,
+        model: model || 'simulated',
+      })
+    }
+
     const selectedModel = model && AGENT_MODELS.includes(model) ? model : 'gemini-2.5-flash'
     
     const agent = getAgent({ model: selectedModel })
