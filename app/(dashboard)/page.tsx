@@ -19,9 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import {
-  SidebarTrigger
-} from '@/components/ui/sidebar'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
@@ -67,8 +65,12 @@ export default function Page() {
   const [messages, setMessages] = useState<Message[]>([])
   const [availableModels, setAvailableModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash')
-  const [travelingBubbles, setTravelingBubbles] = useState<TravelingBubble[]>([])
-  const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null)
+  const [travelingBubbles, setTravelingBubbles] = useState<TravelingBubble[]>(
+    []
+  )
+  const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(
+    null
+  )
   const scrollRef = useRef<HTMLDivElement>(null)
   const promptRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -117,16 +119,16 @@ export default function Page() {
     setAnimatingMessageId(userMessage.id)
 
     // Wait for DOM to update, then capture positions
-    await new Promise(resolve => setTimeout(resolve, 0))
-    
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
     const promptRect = promptRef.current?.getBoundingClientRect()
     const lastMessageElement = lastMessageRef.current
-    
+
     if (promptRect && lastMessageElement) {
       // Find the actual message bubble (the motion.div with bg-primary)
       const messageBubble = lastMessageElement.querySelector('.bg-primary')
       const bubbleRect = messageBubble?.getBoundingClientRect()
-      
+
       if (bubbleRect) {
         const bubble: TravelingBubble = {
           id: userMessage.id,
@@ -140,14 +142,14 @@ export default function Page() {
           endWidth: bubbleRect.width,
           endHeight: bubbleRect.height,
         }
-        
+
         setTravelingBubbles((prev) => [...prev, bubble])
-        
+
         // Show message when bubble reaches destination
         setTimeout(() => {
           setAnimatingMessageId(null)
         }, ANIMATION_CONFIG.messageRevealDelay)
-        
+
         // Remove bubble after animation completes
         setTimeout(() => {
           setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
@@ -161,7 +163,7 @@ export default function Page() {
       role: 'assistant',
       content: '',
     }
-    
+
     setTimeout(() => {
       setMessages((prev) => [...prev, aiMessage])
     }, 100)
@@ -278,118 +280,124 @@ export default function Page() {
       </AnimatePresence>
 
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Conversations</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>New Chat</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-          <div className="ml-auto px-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  {selectedModel}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="max-h-96 overflow-y-auto"
-              >
-                {availableModels.map((model) => (
-                  <DropdownMenuItem
-                    key={model}
-                    onClick={() => setSelectedModel(model)}
-                    className={selectedModel === model ? 'bg-accent' : ''}
-                  >
-                    {model}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator
+            orientation="vertical"
+            className="mr-2 data-[orientation=vertical]:h-4"
+          />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="#">Conversations</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage>New Chat</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="ml-auto px-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                {selectedModel}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-96 overflow-y-auto"
+            >
+              {availableModels.map((model) => (
+                <DropdownMenuItem
+                  key={model}
+                  onClick={() => setSelectedModel(model)}
+                  className={selectedModel === model ? 'bg-accent' : ''}
+                >
+                  {model}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+      <motion.div
+        className="flex flex-col transition-all max-w-2xl mx-auto w-full"
+        initial={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
+        animate={{
+          height: hasMessages
+            ? 'calc(100vh - calc(var(--spacing) * 16 * 1 + 50px))'
+            : 'calc(100vh - calc(var(--spacing) * 16 * 3))',
+        }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <motion.div
-          className="flex flex-col transition-all max-w-2xl mx-auto w-full"
-          initial={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
+          ref={messagesContainerRef}
+          className="flex flex-col flex-1 overflow-hidden"
           animate={{
-            height: hasMessages
-              ? 'calc(100vh - calc(var(--spacing) * 16 * 1 + 50px))'
-              : 'calc(100vh - calc(var(--spacing) * 16 * 3))',
+            flexGrow: hasMessages ? 1 : 1,
           }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <motion.div
-            ref={messagesContainerRef}
-            className="flex flex-col flex-1 overflow-hidden"
-            animate={{
-              flexGrow: hasMessages ? 1 : 1,
-            }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <AnimatePresence mode="wait">
-              {hasMessages && (
-                <ScrollArea key="messages" className="h-full">
-                  <div ref={scrollRef} className="flex flex-col">
-                    {messages.map((message, index) => (
-                      <div
-                        key={message.id}
-                        ref={index === messages.length - 1 ? lastMessageRef : null}
-                        className={message.id === animatingMessageId ? 'opacity-0 pointer-events-none' : ''}
-                      >
-                        <ChatMessage
-                          role={message.role}
-                          content={message.content}
-                          index={index}
-                          isAnimating={message.id === animatingMessageId}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
-            </AnimatePresence>
-          </motion.div>
-          <AnimatePresence>
-            {!hasMessages && (
-              <motion.h1
-                initial={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-                className="mb-7 mx-auto text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap"
-              >
-                How can I help you today?
-              </motion.h1>
+          <AnimatePresence mode="wait">
+            {hasMessages && (
+              <ScrollArea key="messages" className="h-full">
+                <div ref={scrollRef} className="flex flex-col">
+                  {messages.map((message, index) => (
+                    <div
+                      key={message.id}
+                      ref={
+                        index === messages.length - 1 ? lastMessageRef : null
+                      }
+                      className={
+                        message.id === animatingMessageId
+                          ? 'opacity-0 pointer-events-none'
+                          : ''
+                      }
+                    >
+                      <ChatMessage
+                        role={message.role}
+                        content={message.content}
+                        index={index}
+                        isAnimating={message.id === animatingMessageId}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             )}
           </AnimatePresence>
-          <motion.div
-            ref={promptRef}
-            animate={{
-              y: hasMessages ? 0 : 0,
-            }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          >
-            <AiPrompt onSend={handleSendMessage} />
-          </motion.div>
-          <motion.div
-            className="flex"
-            style={{ willChange: 'flex-grow' }}
-            initial={{ flexGrow: 1 }}
-            animate={{ flexGrow: hasMessages ? 0 : 1 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          />
         </motion.div>
+        <AnimatePresence>
+          {!hasMessages && (
+            <motion.h1
+              initial={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+              className="mb-7 mx-auto text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap"
+            >
+              How can I help you today?
+            </motion.h1>
+          )}
+        </AnimatePresence>
+        <motion.div
+          ref={promptRef}
+          animate={{
+            y: hasMessages ? 0 : 0,
+          }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          <AiPrompt onSend={handleSendMessage} />
+        </motion.div>
+        <motion.div
+          className="flex"
+          style={{ willChange: 'flex-grow' }}
+          initial={{ flexGrow: 1 }}
+          animate={{ flexGrow: hasMessages ? 0 : 1 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        />
+      </motion.div>
     </>
   )
 }
