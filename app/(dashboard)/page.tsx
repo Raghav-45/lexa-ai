@@ -44,6 +44,25 @@ interface TravelingBubble {
   endHeight?: number
 }
 
+// Animation configuration - adjust these values to change animation behavior
+const ANIMATION_CONFIG = {
+  // Duration of the bubble travel animation in seconds
+  travelDuration: 0.8,
+  // Easing function for smooth animation
+  easing: [0.4, 0, 0.2, 1] as const,
+  // When to start fading out (0-1, where 1 is end of animation)
+  fadeStartPoint: 0.7,
+  // Delay before showing the actual message (in ms)
+  messageRevealDelay: 5800,
+  // Total time before removing bubble from DOM (in ms)
+  bubbleCleanupDelay: 5900,
+  // Border radius values
+  borderRadius: {
+    start: '28px',
+    end: '24px',
+  },
+} as const
+
 export default function Page() {
   const [messages, setMessages] = useState<Message[]>([])
   const [availableModels, setAvailableModels] = useState<string[]>([])
@@ -127,12 +146,12 @@ export default function Page() {
         // Show message when bubble reaches destination
         setTimeout(() => {
           setAnimatingMessageId(null)
-        }, 200)
+        }, ANIMATION_CONFIG.messageRevealDelay)
         
-        // Remove bubble after fade completes
+        // Remove bubble after animation completes
         setTimeout(() => {
           setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
-        }, 3600)
+        }, ANIMATION_CONFIG.bubbleCleanupDelay)
       }
     }
 
@@ -148,7 +167,7 @@ export default function Page() {
     }, 100)
 
     try {
-      const response = await fetch('/api/chat_placeholder', {
+      const response = await fetch('/api/chat_placs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -234,23 +253,23 @@ export default function Page() {
               height: bubble.height,
               opacity: 1,
               scale: 1,
-              borderRadius: '28px',
+              borderRadius: ANIMATION_CONFIG.borderRadius.start,
             }}
             animate={{
               left: bubble.endX,
               top: bubble.endY,
-              width: bubble.endWidth || 280,
-              height: bubble.endHeight || 56,
-              opacity: [1, 1, 0],
-              borderRadius: '24px',
+              width: bubble.endWidth || bubble.width,
+              height: bubble.endHeight || bubble.height,
+              // opacity: [1, 1, 0],
+              borderRadius: ANIMATION_CONFIG.borderRadius.end,
             }}
             transition={{
-              duration: 0.2,
-              ease: [0.4, 0, 0.2, 1],
+              duration: ANIMATION_CONFIG.travelDuration,
+              ease: ANIMATION_CONFIG.easing,
               opacity: {
-                times: [0, 0.95, 1],
-                ease: 'easeOut',
-              }
+                times: [0, ANIMATION_CONFIG.fadeStartPoint, 1],
+                // ease: 'easeOut',
+              },
             }}
             className="pointer-events-none z-50 bg-primary text-primary-foreground shadow-2xl flex items-center px-4"
           >
