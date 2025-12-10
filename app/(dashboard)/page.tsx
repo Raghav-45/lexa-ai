@@ -40,6 +40,8 @@ interface TravelingBubble {
   endY: number
   width: number
   height: number
+  endWidth?: number
+  endHeight?: number
 }
 
 export default function Page() {
@@ -102,26 +104,32 @@ export default function Page() {
     const lastMessageElement = lastMessageRef.current
     
     if (promptRect && lastMessageElement) {
-      const messageRect = lastMessageElement.getBoundingClientRect()
+      // Find the actual message bubble (the motion.div with bg-primary)
+      const messageBubble = lastMessageElement.querySelector('.bg-primary')
+      const bubbleRect = messageBubble?.getBoundingClientRect()
       
-      const bubble: TravelingBubble = {
-        id: userMessage.id,
-        content,
-        startX: promptRect.left,
-        startY: promptRect.top,
-        endX: messageRect.left,
-        endY: messageRect.top,
-        width: promptRect.width,
-        height: promptRect.height,
+      if (bubbleRect) {
+        const bubble: TravelingBubble = {
+          id: userMessage.id,
+          content,
+          startX: promptRect.left,
+          startY: promptRect.top,
+          endX: bubbleRect.left,
+          endY: bubbleRect.top,
+          width: promptRect.width,
+          height: promptRect.height,
+          endWidth: bubbleRect.width,
+          endHeight: bubbleRect.height,
+        }
+        
+        setTravelingBubbles((prev) => [...prev, bubble])
+        
+        // Show message and remove bubble after animation
+        setTimeout(() => {
+          setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
+          setAnimatingMessageId(null)
+        }, 700)
       }
-      
-      setTravelingBubbles((prev) => [...prev, bubble])
-      
-      // Show message and remove bubble after animation
-      setTimeout(() => {
-        setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
-        setAnimatingMessageId(null)
-      }, 700)
     }
 
     const aiMessageId = (Date.now() + 1).toString()
@@ -227,8 +235,8 @@ export default function Page() {
             animate={{
               left: bubble.endX,
               top: bubble.endY,
-              width: 280,
-              height: 56,
+              width: bubble.endWidth || 280,
+              height: bubble.endHeight || 56,
               scale: [1, 1.05, 1],
               borderRadius: '24px',
             }}
