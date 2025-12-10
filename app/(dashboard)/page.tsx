@@ -47,6 +47,7 @@ export default function Page() {
   const [availableModels, setAvailableModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash')
   const [travelingBubbles, setTravelingBubbles] = useState<TravelingBubble[]>([])
+  const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const promptRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -89,36 +90,39 @@ export default function Page() {
       content,
     }
 
-    // Capture positions for bubble animation
-    const promptRect = promptRef.current?.getBoundingClientRect()
-    const messagesRect = messagesContainerRef.current?.getBoundingClientRect()
+    // Add message first (will be hidden during animation)
+    const updatedMessages = [...messages, userMessage]
+    setMessages(updatedMessages)
+    setAnimatingMessageId(userMessage.id)
+
+    // Wait for DOM to update, then capture positions
+    await new Promise(resolve => setTimeout(resolve, 0))
     
-    if (promptRect && messagesRect) {
-      // Calculate end position for right-aligned user message
-      const messageWidth = 280
-      const paddingRight = 16
-      const avatarWidth = 44
+    const promptRect = promptRef.current?.getBoundingClientRect()
+    const lastMessageElement = lastMessageRef.current
+    
+    if (promptRect && lastMessageElement) {
+      const messageRect = lastMessageElement.getBoundingClientRect()
       
       const bubble: TravelingBubble = {
         id: userMessage.id,
         content,
         startX: promptRect.left,
         startY: promptRect.top,
-        endX: messagesRect.right - messageWidth - avatarWidth - paddingRight,
-        endY: messagesRect.bottom - 80,
+        endX: messageRect.left,
+        endY: messageRect.top,
         width: promptRect.width,
         height: promptRect.height,
       }
       
       setTravelingBubbles((prev) => [...prev, bubble])
       
+      // Show message and remove bubble after animation
       setTimeout(() => {
         setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
+        setAnimatingMessageId(null)
       }, 700)
     }
-
-    const updatedMessages = [...messages, userMessage]
-    setMessages(updatedMessages)
 
     const aiMessageId = (Date.now() + 1).toString()
     const aiMessage: Message = {
@@ -315,6 +319,7 @@ export default function Page() {
                       <div
                         key={message.id}
                         ref={index === messages.length - 1 ? lastMessageRef : null}
+                        className={message.id === animatingMessageId ? 'opacity-0' : ''}
                       >
                         <ChatMessage
                           role={message.role}
