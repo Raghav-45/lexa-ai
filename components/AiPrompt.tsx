@@ -25,9 +25,10 @@ import { useRef, useState } from "react";
 
 interface AiPromptProps {
   onSend?: (message: string) => void;
+  hasMessages?: boolean;
 }
 
-export function AiPrompt({ onSend }: AiPromptProps) {
+export function AiPrompt({ onSend, hasMessages = false }: AiPromptProps) {
   const [message, setMessage] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -111,7 +112,7 @@ export function AiPrompt({ onSend }: AiPromptProps) {
                 value={message}
                 onChange={handleTextareaChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask anything"
+                placeholder={hasMessages ? "Ask another question..." : "Ask anything..."}
                 className="min-h-0 resize-none rounded-none border-0 p-0 text-base placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 scrollbar-thin dark:bg-transparent"
                 rows={1}
               />
