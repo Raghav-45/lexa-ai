@@ -28,25 +28,32 @@ export function ChatMessage({ role, content, index }: ChatMessageProps) {
         ease: [0.25, 0.1, 0.25, 1],
       }}
       className={cn(
-        'flex gap-3 px-4 py-6 transition-colors hover:bg-muted/50',
-        isAssistant ? 'bg-muted/20' : ''
+        'flex gap-3 px-4 py-3',
+        isAssistant ? 'justify-start' : 'justify-end'
       )}
     >
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarFallback className={cn(
-          isAssistant 
-            ? 'bg-primary text-primary-foreground' 
-            : 'bg-secondary text-secondary-foreground'
-        )}>
-          {isAssistant ? 'AI' : 'U'}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 space-y-2 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
-          className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none"
+      {isAssistant && (
+        <Avatar className="h-8 w-8 shrink-0 mt-1">
+          <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+            AI
+          </AvatarFallback>
+        </Avatar>
+      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+        className={cn(
+          'max-w-[75%] rounded-3xl px-4 py-2.5 shadow-sm',
+          isAssistant
+            ? 'bg-muted text-foreground rounded-tl-md'
+            : 'bg-primary text-primary-foreground rounded-tr-md'
+        )}
+      >
+        <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+          style={{
+            color: 'inherit'
+          }}
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -60,7 +67,10 @@ export function ChatMessage({ role, content, index }: ChatMessageProps) {
                     {children}
                   </code>
                 ) : (
-                  <code className="bg-muted px-1 py-0.5 rounded text-xs" {...props}>
+                  <code className={cn(
+                    "px-1.5 py-0.5 rounded-md text-xs font-mono",
+                    isAssistant ? "bg-background/50" : "bg-primary-foreground/20"
+                  )} {...props}>
                     {children}
                   </code>
                 )
@@ -69,7 +79,10 @@ export function ChatMessage({ role, content, index }: ChatMessageProps) {
               a: ({ node, children, ...props }: any) => (
                 <a
                   {...props}
-                  className="text-primary hover:underline"
+                  className={cn(
+                    "underline underline-offset-2 hover:no-underline",
+                    isAssistant ? "text-primary" : "text-primary-foreground"
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -78,25 +91,31 @@ export function ChatMessage({ role, content, index }: ChatMessageProps) {
               ),
               // Customize lists
               ul: ({ node, children, ...props }: any) => (
-                <ul className="list-disc list-inside space-y-1" {...props}>
+                <ul className="list-disc list-inside space-y-0.5 my-2" {...props}>
                   {children}
                 </ul>
               ),
               ol: ({ node, children, ...props }: any) => (
-                <ol className="list-decimal list-inside space-y-1" {...props}>
+                <ol className="list-decimal list-inside space-y-0.5 my-2" {...props}>
                   {children}
                 </ol>
               ),
               // Customize headings
               h1: ({ node, children, ...props }: any) => (
-                <h1 className="text-xl font-bold mt-4 mb-2" {...props}>
+                <h1 className="text-lg font-semibold mt-3 mb-1" {...props}>
                   {children}
                 </h1>
               ),
               h2: ({ node, children, ...props }: any) => (
-                <h2 className="text-lg font-bold mt-3 mb-2" {...props}>
+                <h2 className="text-base font-semibold mt-2 mb-1" {...props}>
                   {children}
                 </h2>
+              ),
+              // Customize paragraphs
+              p: ({ node, children, ...props }: any) => (
+                <p className="mb-0" {...props}>
+                  {children}
+                </p>
               ),
               h3: ({ node, children, ...props }: any) => (
                 <h3 className="text-base font-bold mt-2 mb-1" {...props}>
@@ -113,8 +132,15 @@ export function ChatMessage({ role, content, index }: ChatMessageProps) {
           >
             {content}
           </ReactMarkdown>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
+      {!isAssistant && (
+        <Avatar className="h-8 w-8 shrink-0 mt-1">
+          <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+            U
+          </AvatarFallback>
+        </Avatar>
+      )}
     </motion.div>
   )
 }

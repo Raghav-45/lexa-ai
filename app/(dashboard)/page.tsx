@@ -31,11 +31,26 @@ interface Message {
   content: string
 }
 
+interface TravelingBubble {
+  id: string
+  content: string
+  startX: number
+  startY: number
+  endX: number
+  endY: number
+  width: number
+  height: number
+}
+
 export default function Page() {
   const [messages, setMessages] = useState<Message[]>([])
   const [availableModels, setAvailableModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash')
+  const [travelingBubbles, setTravelingBubbles] = useState<TravelingBubble[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
+  const promptRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const lastMessageRef = useRef<HTMLDivElement>(null)
   const hasMessages = messages.length > 0
 
   useEffect(() => {
@@ -74,17 +89,47 @@ export default function Page() {
       content,
     }
 
+    // Capture positions for bubble animation
+    const promptRect = promptRef.current?.getBoundingClientRect()
+    const messagesRect = messagesContainerRef.current?.getBoundingClientRect()
+    
+    if (promptRect && messagesRect) {
+      // Calculate end position for right-aligned user message
+      const messageWidth = 280
+      const paddingRight = 16
+      const avatarWidth = 44
+      
+      const bubble: TravelingBubble = {
+        id: userMessage.id,
+        content,
+        startX: promptRect.left,
+        startY: promptRect.top,
+        endX: messagesRect.right - messageWidth - avatarWidth - paddingRight,
+        endY: messagesRect.bottom - 80,
+        width: promptRect.width,
+        height: promptRect.height,
+      }
+      
+      setTravelingBubbles((prev) => [...prev, bubble])
+      
+      setTimeout(() => {
+        setTravelingBubbles((prev) => prev.filter((b) => b.id !== bubble.id))
+      }, 700)
+    }
+
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
 
-    // Create placeholder AI message
     const aiMessageId = (Date.now() + 1).toString()
     const aiMessage: Message = {
       id: aiMessageId,
       role: 'assistant',
       content: '',
     }
-    setMessages((prev) => [...prev, aiMessage])
+    
+    setTimeout(() => {
+      setMessages((prev) => [...prev, aiMessage])
+    }, 100)
 
     try {
       const response = await fetch('/api/chat', {
@@ -159,6 +204,48 @@ export default function Page() {
 
   return (
     <>
+      {/* Traveling Bubbles Overlay */}
+      <AnimatePresence mode="popLayout">
+        {travelingBubbles.map((bubble) => (
+          <motion.div
+            key={bubble.id}
+            layoutId={`bubble-${bubble.id}`}
+            initial={{
+              position: 'fixed',
+              left: bubble.startX,
+              top: bubble.startY,
+              width: bubble.width,
+              height: bubble.height,
+              opacity: 1,
+              scale: 1,
+              borderRadius: '28px',
+            }}
+            animate={{
+              left: bubble.endX,
+              top: bubble.endY,
+              width: 280,
+              height: 56,
+              scale: [1, 1.05, 1],
+              borderRadius: '24px',
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.9,
+            }}
+            transition={{
+              duration: 0.6,
+              ease: [0.34, 1.56, 0.64, 1],
+              scale: {
+                times: [0, 0.5, 1],
+              }
+            }}
+            className="pointer-events-none z-50 bg-primary text-primary-foreground shadow-2xl flex items-center px-4"
+          >
+            <p className="text-sm truncate">{bubble.content}</p>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -213,6 +300,7 @@ export default function Page() {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <motion.div
+            ref={messagesContainerRef}
             className="flex flex-col flex-1 overflow-hidden"
             animate={{
               flexGrow: hasMessages ? 1 : 1,
@@ -224,12 +312,16 @@ export default function Page() {
                 <ScrollArea key="messages" className="h-full">
                   <div ref={scrollRef} className="flex flex-col">
                     {messages.map((message, index) => (
-                      <ChatMessage
+                      <div
                         key={message.id}
-                        role={message.role}
-                        content={message.content}
-                        index={index}
-                      />
+                        ref={index === messages.length - 1 ? lastMessageRef : null}
+                      >
+                        <ChatMessage
+                          role={message.role}
+                          content={message.content}
+                          index={index}
+                        />
+                      </div>
                     ))}
                   </div>
                 </ScrollArea>
@@ -249,6 +341,7 @@ export default function Page() {
             )}
           </AnimatePresence>
           <motion.div
+            ref={promptRef}
             animate={{
               y: hasMessages ? 0 : 0,
             }}
