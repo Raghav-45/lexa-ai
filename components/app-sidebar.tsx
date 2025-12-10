@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import { NavChatHistory } from "@/components/nav-chat-history"
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import {
@@ -79,29 +79,6 @@ const data = {
         },
       ],
     },
-    // {
-    //   title: "Documentation",
-    //   url: "#",
-    //   icon: BookOpen,
-    //   items: [
-    //     {
-    //       title: "Introduction",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Get Started",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Tutorials",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Changelog",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
     {
       title: "Settings",
       url: "#",
@@ -126,7 +103,7 @@ const data = {
       ],
     },
   ],
-  projects: [
+  chatHistory: [
     {
       name: "Design Engineering",
       url: "#",
@@ -153,7 +130,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavChatHistory chatHistory={data.chatHistory} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
