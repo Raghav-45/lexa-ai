@@ -105,19 +105,24 @@ const data = {
   ],
   chatHistory: [
     {
-      name: "Design Engineering",
+      name: "Write a review",
       url: "#",
-      icon: Frame,
     },
     {
-      name: "Sales & Marketing",
+      name: "Fixing Vite ESM error",
       url: "#",
-      icon: PieChart,
     },
     {
-      name: "Travel",
+      name: "Intersectionality politics economy PDF",
       url: "#",
-      icon: Map,
+    },
+    {
+      name: "Data Structures overview",
+      url: "#",
+    },
+    {
+      name: "Explain a topic",
+      url: "#",
     },
   ],
 }
