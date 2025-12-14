@@ -370,6 +370,9 @@ export default function Page() {
                         isLastMessage={index === messages.length - 1}
                         showActions={index === messages.length - 1 && !isAiStreaming}
                       />
+                      {/* {index == messages.length - 1 && (
+                        <div className="my-36" />
+                      )} */}
                     </div>
                   ))}
                 </div>
