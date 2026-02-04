@@ -1,4 +1,5 @@
-"use client";
+
+import { AnimatePresence, motion } from "framer-motion";
 
 import type React from "react";
 
@@ -191,15 +192,30 @@ export function AiPrompt({ onSend, hasMessages = false }: AiPromptProps) {
                 <IconWaveSine className="size-5 text-muted-foreground" />
               </Button>
 
-              {message.trim() && (
-                <Button
-                  type="submit"
-                  size="icon"
-                  className="h-9 w-9 rounded-full"
-                >
-                  <IconSend className="size-5" />
-                </Button>
-              )}
+              <AnimatePresence mode="popLayout">
+                {message.trim() && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, width: 0 }}
+                    animate={{ opacity: 1, scale: 1, width: "auto" }}
+                    exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 30,
+                      mass: 0.5
+                    }}
+                    className="flex items-center" // Ensure flex alignment
+                  >
+                    <Button
+                      type="submit"
+                      size="icon"
+                      className="h-9 w-9 rounded-full ml-1.5" // Moved margin here for smooth width animation
+                    >
+                      <IconSend className="size-5" />
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
