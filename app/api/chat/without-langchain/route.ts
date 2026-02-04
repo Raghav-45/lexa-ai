@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenAI } from '@google/genai'
+import { systemPrompt } from '@/config/prompt'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -63,6 +64,9 @@ export async function POST(request: Request) {
     const chat = ai.chats.create({
       model: selectedModel,
       history: history,
+      config: {
+        systemInstruction: systemPrompt,
+      },
     })
 
     const response = await chat.sendMessageStream({ message: lastMessage })
