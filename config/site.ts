@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: 'Lexa',
-  url: 'https://encephalon-lab.vercel.app',
+  url: 'https://lexa-ai.vercel.app',
   // ogImage: "https://ui.shadcn.com/og.jpg",
   description:
     'With Lexa, harness the power of AI agents to supercharge your productivity in a snap',
