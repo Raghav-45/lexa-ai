@@ -45,21 +45,29 @@ interface TravelingBubble {
 // Animation configuration - adjust these values to change animation behavior
 const ANIMATION_CONFIG = {
   // Duration of the bubble travel animation in seconds
-  travelDuration: 0.4,
+  travelDuration: 0.45,
   // Easing function for smooth animation
-  easing: [0.4, 0, 0.2, 1] as const,
+  easing: [0.22, 1, 0.36, 1] as number[],
   // When to start fading out (0-1, where 1 is end of animation)
   fadeStartPoint: 0.7,
   // Delay before showing the actual message (in ms)
-  messageRevealDelay: 400,
+  messageRevealDelay: 420,
   // Total time before removing bubble from DOM (in ms)
-  bubbleCleanupDelay: 400,
+  bubbleCleanupDelay: 500,
   // Border radius values
   borderRadius: {
     start: '28px',
     end: '24px',
   },
-} as const
+  // Quick squish at start, then normal travel
+  squish: {
+    // Scale keyframes: [start, compressed, travel, end]
+    // 1 = full size, 0.55 = compressed to 55%
+    scale: [1, 0.75, 0.92, 1] as number[],
+    // When each keyframe happens (0-1 timeline)
+    times: [0, 0.12, 0.5, 1] as number[],
+  },
+}
 
 export default function Page() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -269,16 +277,25 @@ export default function Page() {
               width: bubble.endWidth || bubble.width,
               height: bubble.endHeight || bubble.height,
               borderRadius: ANIMATION_CONFIG.borderRadius.end,
+              scale: ANIMATION_CONFIG.squish.scale,
             }}
             transition={{
               duration: ANIMATION_CONFIG.travelDuration,
               ease: ANIMATION_CONFIG.easing,
+              scale: {
+                duration: ANIMATION_CONFIG.travelDuration,
+                times: ANIMATION_CONFIG.squish.times,
+                ease: [0.22, 1, 0.36, 1],
+              },
               opacity: {
                 times: [0, ANIMATION_CONFIG.fadeStartPoint, 1],
                 ease: 'easeOut',
               },
             }}
             className="pointer-events-none z-50 bg-primary text-primary-foreground shadow-2xl flex items-center px-4"
+            style={{
+              transformOrigin: 'center center',
+            }}
           >
             <p className="text-sm truncate">{bubble.content}</p>
           </motion.div>
