@@ -116,9 +116,7 @@ export default function Page() {
           setAvailableModels(data.models)
           // data.models.filter((model: string) => model.endsWith('-flash-lite'))[0]
           setSelectedModel(
-            data.models.filter((model: string) =>
-              model.endsWith('gemini-2.5-flash-lite')
-            )[0] || data.models[0]
+            data.models[0]
           ) // Set first model as default
           // setSelectedModel(data.models.filter((model: string) => model.endsWith('gemini-2.5-flash-lite'))[0]) // Set first model as default
         }

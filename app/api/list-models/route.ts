@@ -1,26 +1,13 @@
 import { NextResponse } from 'next/server'
+import { AGENT_MODELS } from '@/lib/agent/config'
 
 export async function GET() {
   try {
-    const url: string = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`
-    const responseAllModels = await fetch(url, {
-      next: { revalidate: 604800 } // Cache for 1 week (604800 seconds)
-    })
-    const allModelsData = await responseAllModels.json()
+    // Return the list of configured OpenRouter models
+    // We filter out any potential non-string values just in case, though the type definition is robust
+    const models = [...AGENT_MODELS]
 
-    const textGenModels = allModelsData.models
-      .map((model: any) => model.name.replace('models/', ''))
-      // Filter for Gemini models that are NOT specialized tools
-      .filter((name: string) => 
-        name.startsWith('gemini') &&           // Must be Gemini
-        !name.includes('embedding') &&         // Remove embedding models
-        !name.includes('image') &&             // Remove image-generation/vision specific
-        !name.includes('tts') &&               // Remove Text-to-Speech
-        !name.includes('robotics') &&          // Remove robotics models
-        !name.includes('computer-use')         // Remove computer-use agents
-      )
-
-    return NextResponse.json({ models: textGenModels })
+    return NextResponse.json({ models })
   } catch (error) {
     console.error('Error fetching models:', error)
     return NextResponse.json(

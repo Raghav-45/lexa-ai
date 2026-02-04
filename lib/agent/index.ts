@@ -1,5 +1,5 @@
 import { createAgent } from 'langchain'
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
+import { ChatOpenAI } from '@langchain/openai'
 import { AgentMessage, AgentConfig } from './types'
 import { agentTools } from './tools'
 import { defaultAgentConfig } from './config'
@@ -7,17 +7,29 @@ import { SYSTEM_PROMPT } from './prompt'
 
 export class LangChainAgent {
   private agent: any
-  private model: ChatGoogleGenerativeAI
+  private model: ChatOpenAI
   private config: AgentConfig
 
   constructor(config: Partial<AgentConfig> = {}) {
     this.config = { ...defaultAgentConfig, ...config }
     
-    this.model = new ChatGoogleGenerativeAI({
-      model: this.config.model,
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Missing credentials. Please set OPENROUTER_API_KEY in your .env.local file.");
+    }
+
+    this.model = new ChatOpenAI({
+      modelName: this.config.model,
       temperature: this.config.temperature,
-      maxOutputTokens: this.config.maxTokens,
-      apiKey: process.env.GEMINI_API_KEY,
+      maxTokens: this.config.maxTokens,
+      apiKey: apiKey,
+      configuration: {
+        baseURL: "https://openrouter.ai/api/v1",
+        defaultHeaders: {
+          "HTTP-Referer": "https://lexa.ai", // Optional: Update with actual URL
+          "X-Title": "Lexa AI", // Optional: Update with actual App Name
+        }
+      },
       streaming: true,
     })
     

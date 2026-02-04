@@ -1,17 +1,12 @@
 import { AgentConfig } from './types'
 
+export const AGENT_MODELS = [
+  'nvidia/nemotron-3-nano-30b-a3b:free',
+] as const
 
 export const defaultAgentConfig: AgentConfig = {
-  model: 'gemini-2.5-flash',
+  model: AGENT_MODELS[0],
   temperature: 0.7,
   maxTokens: 2048,
   streaming: true,
 }
-
-export const AGENT_MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
-  'gemini-2.0-flash-exp',
-  'gemini-2.0-flash',
-  'gemini-exp-1206',
-] as const

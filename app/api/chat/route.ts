@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       })
     }
 
-    const selectedModel = model && AGENT_MODELS.includes(model) ? model : 'gemini-2.5-flash'
+    const selectedModel = model
     
     const agent = getAgent({ model: selectedModel })
 
