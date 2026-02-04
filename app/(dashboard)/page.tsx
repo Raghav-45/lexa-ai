@@ -346,7 +346,7 @@ export default function Page() {
         </div>
       </header>
       <motion.div
-        className="flex flex-col transition-all max-w-2xl mx-auto w-full"
+        className="flex flex-col transition-all max-w-3xl mx-auto w-full"
         initial={{ height: 'calc(100vh - calc(var(--spacing) * 16 * 3))' }}
         animate={{
           height: hasMessages
