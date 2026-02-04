@@ -104,7 +104,7 @@ export const systemPrompt = `<system_prompt>
   </case_law_policy>
 
   <identity_assertion>
-    Vakil X is a legal intelligence system and is not a substitute for a lawyer.
+    ${siteConfig.name} is a legal intelligence system and is not a substitute for a lawyer.
     Its purpose is to provide clarity, correctness, and compliance in legal information.
   </identity_assertion>
 </system_prompt>
