@@ -17,27 +17,26 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useChatHistory } from '@/components/chat-history-provider'
 
-export function NavChatHistory({
-  chatHistory,
-}: {
-  chatHistory: {
-    name: string
-    url: string
-  }[]
-}) {
+export function NavChatHistory() {
   const { isMobile } = useSidebar()
+  const { sessions, currentSessionId, setCurrentSessionId, deleteSession } = useChatHistory()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Chat History</SidebarGroupLabel>
       <SidebarMenu>
-        {chatHistory.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <span>{item.name}</span>
-              </a>
+        {sessions.map((item) => (
+          <SidebarMenuItem key={item.id}>
+            <SidebarMenuButton 
+              asChild 
+              isActive={item.id === currentSessionId}
+              onClick={() => setCurrentSessionId(item.id)}
+            >
+              <button className="text-left">
+                <span>{item.title}</span>
+              </button>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -51,29 +50,19 @@ export function NavChatHistory({
                 side={isMobile ? 'bottom' : 'right'}
                 align={isMobile ? 'end' : 'start'}
               >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Share Project</span>
+                <DropdownMenuItem onClick={() => setCurrentSessionId(item.id)}>
+                   <Folder className="text-muted-foreground" />
+                   <span>View Chat</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => deleteSession(item.id)}>
                   <Trash2 className="text-muted-foreground" />
-                  <span>Delete Project</span>
+                  <span>Delete Chat</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )

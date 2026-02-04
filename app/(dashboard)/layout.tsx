@@ -3,6 +3,7 @@ import {
   SidebarInset,
   SidebarProvider
 } from '@/components/ui/sidebar'
+import { ChatHistoryProvider } from '@/components/chat-history-provider'
 
 export default function DashboardLayout({
   children, // will be a page or nested layout
@@ -10,11 +11,13 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        {children}
-      </SidebarInset>
-    </SidebarProvider>
+    <ChatHistoryProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </ChatHistoryProvider>
   )
 }

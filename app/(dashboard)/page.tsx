@@ -23,11 +23,11 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-}
+// interface Message {
+//   id: string
+//   role: 'user' | 'assistant'
+//   content: string
+// }
 
 interface TravelingBubble {
   id: string
@@ -69,8 +69,28 @@ const ANIMATION_CONFIG = {
   },
 }
 
+import { useChatHistory, Message } from '@/components/chat-history-provider'
+
+// ... existing imports ...
+
 export default function Page() {
-  const [messages, setMessages] = useState<Message[]>([])
+  const { 
+    currentSessionId, 
+    createNewSession, 
+    addMessageToSession, 
+    sessions,
+    setCurrentSessionId 
+  } = useChatHistory()
+  
+  // Local state for the current view (history + potential streaming)
+  const [streamingContent, setStreamingContent] = useState('')
+  // messages derived from history + streaming
+  const historyMessages = sessions.find(s => s.id === currentSessionId)?.messages || []
+  
+  const messages = streamingContent 
+    ? [...historyMessages, { id: 'streaming', role: 'assistant', content: streamingContent } as Message]
+    : historyMessages
+
   const [availableModels, setAvailableModels] = useState<string[]>([])
   const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash')
   const [travelingBubbles, setTravelingBubbles] = useState<TravelingBubble[]>(
@@ -116,15 +136,19 @@ export default function Page() {
   }, [messages])
 
   const handleSendMessage = async (content: string) => {
+    let activeSessionId = currentSessionId
+    if (!activeSessionId) {
+      activeSessionId = createNewSession()
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content,
     }
 
-    // Add message first (will be hidden during animation)
-    const updatedMessages = [...messages, userMessage]
-    setMessages(updatedMessages)
+    // Add message to history immediately
+    addMessageToSession(activeSessionId, userMessage)
     setAnimatingMessageId(userMessage.id)
 
     // Wait for DOM to update, then capture positions
@@ -167,25 +191,27 @@ export default function Page() {
     }
 
     const aiMessageId = (Date.now() + 1).toString()
-    const aiMessage: Message = {
-      id: aiMessageId,
-      role: 'assistant',
-      content: '',
-    }
-
+    
+    // Start streaming UI
     setTimeout(() => {
-      setMessages((prev) => [...prev, aiMessage])
       setIsAiStreaming(true)
+      setStreamingContent('')
     }, 100)
 
     try {
+      // Get current messages from sessions to send to API
+      // Note: We need to use the functional update or get the latest state
+      // Since we just added the message, it should be in the session
+      const currentSession = sessions.find(s => s.id === activeSessionId)
+      const contextMessages = currentSession ? [...currentSession.messages, userMessage] : [userMessage]
+      
       const response = await fetch('/api/chat/without-langchain', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: updatedMessages,
+          messages: contextMessages,
           model: selectedModel,
         }),
       })
@@ -207,6 +233,15 @@ export default function Page() {
         const { done, value } = await reader.read()
         if (done) {
           setIsAiStreaming(false)
+          // Add the final assistant message to history
+          if (accumulatedContent) {
+             addMessageToSession(activeSessionId, {
+               id: aiMessageId,
+               role: 'assistant',
+               content: accumulatedContent
+             })
+             setStreamingContent('')
+          }
           break
         }
 
@@ -223,13 +258,7 @@ export default function Page() {
               const parsed = JSON.parse(data)
               if (parsed.text) {
                 accumulatedContent += parsed.text
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === aiMessageId
-                      ? { ...msg, content: accumulatedContent }
-                      : msg
-                  )
-                )
+                setStreamingContent(accumulatedContent)
               }
             } catch (e) {
               // Skip invalid JSON
@@ -240,16 +269,13 @@ export default function Page() {
     } catch (error) {
       console.error('Error fetching AI response:', error)
       setIsAiStreaming(false)
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === aiMessageId
-            ? {
-                ...msg,
-                content: 'Sorry, there was an error processing your request.',
-              }
-            : msg
-        )
-      )
+      // Add error message to history
+      addMessageToSession(activeSessionId, {
+        id: aiMessageId,
+        role: 'assistant',
+        content: 'Sorry, there was an error processing your request.'
+      })
+      setStreamingContent('')
     }
   }
 
