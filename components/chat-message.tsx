@@ -53,7 +53,7 @@ export function ChatMessage({ role, content, index, isAnimating = false, isLastM
           'max-w-[75%] shadow-sm',
           isAssistant
             ? 'text-white pt-2.5 px-1'
-            : 'bg-primary text-primary-foreground rounded-3xl px-4 py-2.5'
+            : 'bg-primary text-primary-foreground rounded-3xl px-3.5 py-2'
         )}
       >
         <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
@@ -129,11 +129,11 @@ export function ChatMessage({ role, content, index, isAnimating = false, isLastM
                 </h3>
               ),
               // Customize paragraphs
-              p: ({ node, children, ...props }: any) => (
-                <p className="mb-2 last:mb-0" {...props}>
-                  {children}
-                </p>
-              ),
+              // p: ({ node, children, ...props }: any) => (
+              //   <p className="mb-2 last:mb-0" {...props}>
+              //     {children}
+              //   </p>
+              // ),
             }}
           >
             {content}
