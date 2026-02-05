@@ -173,7 +173,7 @@ export function AiPrompt({ onSend, hasMessages = false }: AiPromptProps) {
             className="flex items-center gap-2"
             style={{ gridArea: isExpanded ? "footer" : "trailing" }}
           >
-            <div className="ms-auto flex items-center gap-1.5">
+            <div className="ms-auto flex items-center">
               <Button
                 type="button"
                 variant="ghost"
@@ -187,29 +187,29 @@ export function AiPrompt({ onSend, hasMessages = false }: AiPromptProps) {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full hover:bg-accent relative"
+                className="h-9 w-9 rounded-full hover:bg-accent relative ml-1.5"
               >
                 <IconWaveSine className="size-5 text-muted-foreground" />
               </Button>
 
-              <AnimatePresence mode="popLayout">
+              <AnimatePresence>
                 {message.trim() && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8, width: 0 }}
-                    animate={{ opacity: 1, scale: 1, width: "auto" }}
-                    exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                    initial={{ opacity: 0, scale: 0, width: 0, marginLeft: 0 }}
+                    animate={{ opacity: 1, scale: 1, width: "auto", marginLeft: "0.375rem" }}
+                    exit={{ opacity: 0, scale: 0, width: 0, marginLeft: 0 }}
                     transition={{ 
                       type: "spring",
-                      stiffness: 500,
-                      damping: 30,
+                      stiffness: 400,
+                      damping: 25,
                       mass: 0.5
                     }}
-                    className="flex items-center" // Ensure flex alignment
+                    className="flex items-center whitespace-nowrap" 
                   >
                     <Button
                       type="submit"
                       size="icon"
-                      className="h-9 w-9 rounded-full ml-1.5" // Moved margin here for smooth width animation
+                      className="h-9 w-9 rounded-full shrink-0"
                     >
                       <IconSend className="size-5" />
                     </Button>
